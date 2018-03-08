@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="utf-8">
+	<script src="http://cdn.bootcss.com/jquery/2.2.4/jquery.js"></script>
+	<script src="http://cdn.bootcss.com/knockout/3.4.0/knockout-debug.js" ></script>
+	<style>
+		.notification { margin:20px 0px 20px 10px; border-bottom:1px solid #000;}
+		.field label { display:inline-block; width:80px; }
+		.field input[type="text"] { width:200px;}
+		.field input[type="text"].long { width:400px; }
+	</style>
+	</head>
+	<body>
+		<div class="field"><label>token</label><span data-bind="html:token"></span></div>
+		<div data-bind="visible:unlogin">
+		<div class="field"><label>username</label><input type="text" data-bind="value:username" /></div>
+		<div class="field"><label>password</label><input type="password" data-bind="value:password" /></div>
+		<input type="button" value="登录" data-bind="click:login"/>
+		</div>
+		<div class="field"><label>imei</label><input type="text" data-bind="value:imei"/></div>
+		<div class="notification">
+		<div class="field"><label>fine</label><input type="text" data-bind="value:fine" /></div>
+		<div class="field"><label>status</label><input type="text" data-bind="value:status" /></div>
+		<input type="button" value="围栏提醒" data-bind="click:push_fence"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>power</label><input type="text" data-bind="value:power" /></div>
+		<input type="button" value="低电提醒" data-bind="click:push_low_power"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>user</label><input type="text" data-bind="value:user" /></div>
+		<div class="field"><label>msg</label><input class="long" type="text" data-bind="value:msg" /></div>
+		<input type="button" value="绑定请求" data-bind="click:push_bind_req"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>result</label><input type="text" data-bind="value:result" /></div>
+		<input type="button" value="绑定审核结果" data-bind="click:push_bind_rsp"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>voice</label><input type="text" data-bind="value:voice"/></div>
+		<div class="field"><label>duration</label><input type="text" data-bind="value:duration" /></div>
+		<div class="field"><label>url</label><input class="long" type="text" data-bind="value:voice_url" /></div>
+		<input type="button" value="新语音" data-bind="click:push_voice"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>lat</label><input type="text" data-bind="value:lat" /></div>
+		<div class="field"><label>lng</label><input type="text" data-bind="value:lng" /></div>
+		<div class="field"><label>address</label><input class="long" type="text" data-bind="value:address" /></div>
+		<input type="button" value="SOS" data-bind="click:push_sos"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>photo</label><input type="text" data-bind="value:photo" /></div>
+		<div class="field"><label>sid</label><input type="text" data-bind="value:sid" /></div>
+		<div class="field"><label>url</label><input class="long" type="text" data-bind="value:photo_url" /></div>
+		<input type="button" value="照片" data-bind="click:push_photo"/>
+		</div>
+		<div class="notification">
+		<div class="field"><label>sms</label><input type="text" data-bind="value:sms" /></div>
+		<input type="button" value="短信" data-bind="click:push_photo"/>
+		</div>
+	</body>
+	<script>
+		$(document).ready(function(){
+			var emptytoken = '{$token}'=='';
+			var viewModel = {
+					unlogin:ko.observable(emptytoken),
+					username:ko.observable(''),
+					password:ko.observable(''),
+					token:ko.observable('{$token}'),
+					imei:ko.observable('{$imei}'),
+					fine:ko.observable('112'),
+					status:ko.observable('1'),
+					power:ko.observable('10'),
+					user:ko.observable('3333'),
+					msg:ko.observable('测试消息'),
+					result:ko.observable('1'),
+					voice:ko.observable('121'),
+					duration:ko.observable('3'),
+					voice_url:ko.observable('https://app.imerit.cn/upload/xx.amr'),
+					lat:ko.observable('22.6'),
+					lng:ko.observable('114'),
+					address:ko.observable('广东省深圳市南山区北环大道111号'),
+					photo:ko.observable('111'),
+					sid:ko.observable('1b1a2da32'),
+					photo_url:ko.observable('https://app.imerit.cn/upload/yy.jpg'),
+					sms:ko.observable('测试消息'),
+					login:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/login',
+							type:'POST',
+							data:{
+								username:viewModel.username(),
+								password:viewModel.password()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									viewModel.unlogin(0);
+									viewModel.token(result.data.token);
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_fence:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/fence',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								fine:viewModel.fine(),
+								status:viewModel.status()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_low_power:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/low_power',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								power:viewModel.power()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_bind_req:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/bind_req',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								user:viewModel.user(),
+								msg:viewModel.msg()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_bind_rsp:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/bind_rsp',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								result:viewModel.result()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_voice:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/voice',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								voice:viewModel.voice(),
+								duration:viewModel.duration(),
+								url:viewModel.voice_url()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_sos:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/sos',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								lat:viewModel.lat(),
+								lng:viewModel.lng(),
+								address:viewModel.address()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_photo:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/photo',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								photo:viewModel.photo(),
+								sid:viewModel.sid(),
+								url:viewModel.photo_url()
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						});
+					},
+					push_sms:function(){
+						$.ajax({
+							url:'index.php?s=home/debug/sms',
+							type:'POST',
+							data:{
+								token:viewModel.token(),
+								imei:viewModel.imei(),
+								text:viewModel.sms(),
+							},
+							dataType:'json',
+							success:function(result){
+								if( result.errcode == 0 ){
+									alert('Success');
+								}
+								else {
+									alert(result.errmsg + ' code=' + result.errcode);
+								}
+							},
+							error:function(req){
+								alert(req);
+							}
+						})
+					}
+			};
+			ko.applyBindings(viewModel);
+		});
+	</script>
+</html>
+
